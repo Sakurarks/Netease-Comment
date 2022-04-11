@@ -1,5 +1,15 @@
 const express = require('express');
+const mysql = require('mysql');
 const app = express();
+const selectSQL = "SELECT * FROM 163_comments ORDER BY RAND() LIMIT 1;";
+
+var connection = mysql.createConnection({
+  host     : '',
+  user     : '',
+  password : '',
+  database : 'sakurark'
+});
+connection.connect();
 
 app.all('*', function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -11,7 +21,15 @@ app.all('*', function(req, res, next) {
 });
 
 app.get('/netease-hitokoto',function(req,res,err){
-  
+  connection.query(selectSQL, (error, results, fields) => {
+    if (error) {
+      res.json({status: 500, auther: "Internal Error", comments: "Please feedback me."})
+    }
+    else{
+      console.log(results);
+      res.json({status: 200, auther: results[0].auther, comments: results[0].comments})
+    }
+  });
 })
 
 var server = app.listen(4000, '127.0.0.1', function(){
